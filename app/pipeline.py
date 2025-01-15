@@ -1,40 +1,71 @@
+import os
 import pandas as pd
-import time as time
+import time as t
 from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy_utils import create_database, database_exists
 
-path = "data\yellow_tripdata_2021-01.csv"
-database_type = "postgresql"
-credential = "user"
-hostport = "5433"
-database_name = "NY_taxy"
+path = "data/yellow_tripdata_2021-01.csv"
 
-
-def data_ingestor(path, database_type, credential, hostport, database_name):
+def data_ingestor(path):
     """
-    df param: takes a datanase object 
+    Ingests CSV data into PostgreSQL database in chunks.
+    
+    Args:
+        path (str): Path to the CSV file
     """
-    # Setting up the postgresql engine to fascilitate database ingestion
-    engine  = create_engine(f"{database_type}://{credential}:{credential}@localhost{hostport}/{database_name}")
-
-    df_iter = pd.read_csv(f"{path}", iterator=True, chunksize=100000)
-
-
-    while True:
-        time_start = time()
+    try:
+        database_url = os.getenv('DATABASE_URL')
+        if not database_url:
+            raise ValueError("DATABASE_URL environment variable is not set")
+            
+        # Create database if it doesn't exist
+        engine = create_engine(database_url)
+        if not database_exists(engine.url):
+            create_database(engine.url)
+            print("Created database")
         
+        # Create iterator for the CSV file
+        df_iter = pd.read_csv(path, iterator=True, chunksize=100000)
+        
+        # Get the first chunk
         df = next(df_iter)
-
+        
+        # Convert datetime columns
         df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
         df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
+        
+        # Create table with first chunk
+        df.head(n=0).to_sql(name="yellow_taxi_data", con=engine, if_exists="replace")
+        
+        # Insert first chunk
+        time_start = t.time()
+        df.to_sql(name="yellow_taxi_data", con=engine, if_exists="append")
+        time_end = t.time()
+        print(f"First chunk ingested... took {time_end - time_start:.2f} seconds")
+        
+        # Process remaining chunks
+        while True:
+            try:
+                time_start = t.time()
+                df = next(df_iter)
+                
+                df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
+                df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
+                
+                df.to_sql(name="yellow_taxi_data", con=engine, if_exists="append")
+                
+                time_end = t.time()
+                print(f"Chunk ingested... took {time_end - time_start:.2f} seconds")
+                
+            except StopIteration:
+                print("Finished ingesting all the data")
+                break
+                
+    except SQLAlchemyError as e:
+        print(f"Database error occurred: {str(e)}")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
 
-        # Checks whether the column names allready 
-        df.head(n = 0).to_sql(name="yellow_taxi_data", con=engine, if_exists="replace")
-
-        # If data allready exists append new rows.
-        df.to_sql(name="yellow_taxi_data", con=engine, if_exists="append") 
-        time_end = time()
-
-        print(f"Data chunk is inserted in the {database_type} called {database_name}... it took %3.f seconds" % (time_end - time_start))
-
-
-data_ingestor(path=path, database_type=database_type, credential=credential, hostport=hostport, database_name=database_name)
+if __name__ == "__main__":
+    data_ingestor(path)

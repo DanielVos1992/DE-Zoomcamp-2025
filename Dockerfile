@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # installing pandas
-RUN pip3 install --no-cache-dir pandas psycopg2-binary jupyter sqlalchemy
+RUN pip3 install --no-cache-dir pandas psycopg2-binary jupyter sqlalchemy sqlalchemy_utils
 
 # Set the working directory for the image
 WORKDIR /app

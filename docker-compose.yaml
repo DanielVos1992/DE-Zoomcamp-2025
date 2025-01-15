@@ -1,4 +1,3 @@
-version: "3"                                      # Specifies the Docker Compose file format version 
 services:                                         # Defines the services/containers we want to run
   python_app:
     build:
@@ -8,8 +7,9 @@ services:                                         # Defines the services/contain
       - postgres
     volumes:
       - ./app:/app
+      - ./app/data:/app/data
     environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/NY_taxi  
+      - DATABASE_URL=postgresql://user:password@postgres:5432/NY_taxi 
 
   postgres:                                       # Name of our first service
     image: postgres:16                            # Uses official PostgreSQL version 16 image
