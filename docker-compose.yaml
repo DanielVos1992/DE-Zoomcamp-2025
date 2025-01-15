@@ -27,10 +27,13 @@ services:                                         # Defines the services/contain
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com     # Login email
       - PGADMIN_DEFAULT_PASSWORD=admin            # Login password
+      - PGADMIN_SERVER_JSON_FILE=/pgadmin4/servers.json
     ports:
       - "8080:80"                                 # Access pgAdmin at localhost:8080
     depends_on:
       - postgres                                  # Ensures postgres starts first
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
 
 volumes:
   postgres_data:                                  # Defines a named volume for persistent storage

@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "NY Taxi DB",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "NY_taxi",
+            "Username": "user",
+            "Password": "password",
+            "SSLMode": "prefer"
+        }
+    }
+}
