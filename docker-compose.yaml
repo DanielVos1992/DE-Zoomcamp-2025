@@ -9,14 +9,14 @@ services:                                         # Defines the services/contain
     volumes:
       - ./app:/app
     environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/my_database  
+      - DATABASE_URL=postgresql://user:password@postgres:5432/NY_taxi  
 
   postgres:                                       # Name of our first service
     image: postgres:16                            # Uses official PostgreSQL version 16 image
     environment:                                  # Sets environment variables for PostgreSQL
       - POSTGRES_USER=user                        # Creates a database user
       - POSTGRES_PASSWORD=password                # Sets the user's password
-      - POSTGRES_DB=NY_taxy                       # Creates an initial database
+      - POSTGRES_DB=NY_taxi                       # Creates an initial database
     ports:
       - "5433:5432"                               # Maps host port 5432 to container port 5432
     volumes:
