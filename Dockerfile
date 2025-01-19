@@ -16,7 +16,3 @@ RUN pip3 install --no-cache-dir pandas psycopg2-binary jupyter sqlalchemy sqlalc
 # Set the working directory for the image
 WORKDIR /app
 
-CMD ["python", "pipeline.py", "bash"]
-
-
-

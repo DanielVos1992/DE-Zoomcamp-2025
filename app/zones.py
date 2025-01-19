@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_utils import create_database, database_exists
 
-path = "data/yellow_tripdata_2021-01.csv"
+path = "data/taxi_zone_lookup.csv"
 
 def data_ingestor(path):
     """
@@ -26,34 +26,28 @@ def data_ingestor(path):
             print("Created database")
         
         # Create iterator for the CSV file
-        df_iter = pd.read_csv(path, iterator=True, chunksize=100000)
+        df_iter = pd.read_csv(path, iterator=True, chunksize=100000, low_memory=False)
         
         # Get the first chunk
         df = next(df_iter)
         
-        # Convert datetime columns
-        df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-        df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
-        
         # Create table with first chunk
-        df.head(n=0).to_sql(name="yellow_taxi_data", con=engine, if_exists="replace")
+        df.head(n=0).to_sql(name="taxi_zones", con=engine, if_exists="replace")
         
         # Insert first chunk
         time_start = t.time()
-        df.to_sql(name="yellow_taxi_data", con=engine, if_exists="append")
+        df.to_sql(name="taxi_zones", con=engine, if_exists="append")
         time_end = t.time()
         print(f"First chunk ingested... took {time_end - time_start:.2f} seconds")
         
         # Process remaining chunks
         while True:
             try:
+
                 time_start = t.time()
                 df = next(df_iter)
-                
-                df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-                df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
-                
-                df.to_sql(name="yellow_taxi_data", con=engine, if_exists="append")
+
+                df.to_sql(name="taxi_zones", con=engine, if_exists="append")
                 
                 time_end = t.time()
                 print(f"Chunk ingested... took {time_end - time_start:.2f} seconds")

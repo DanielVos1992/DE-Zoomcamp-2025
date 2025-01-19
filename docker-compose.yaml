@@ -14,6 +14,19 @@ services:                                         # Defines the services/contain
       - "8888:8888" 
     command: jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root 
 
+  ingest_data:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    volumes:
+      - ./app:/app
+      - ./app/data:/app/data
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/NY_taxi 
+    command: /bin/bash -c "python pipeline_yellow.py && python pipeline_green.py &&  python zones.py"
+
   postgres:                                       # Name of our first service
     image: postgres:16                            # Uses official PostgreSQL version 16 image
     environment:                                  # Sets environment variables for PostgreSQL
