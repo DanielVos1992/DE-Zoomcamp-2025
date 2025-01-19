@@ -10,6 +10,9 @@ services:                                         # Defines the services/contain
       - ./app/data:/app/data
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/NY_taxi 
+    ports:
+      - "8888:8888" 
+    command: jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root 
 
   postgres:                                       # Name of our first service
     image: postgres:16                            # Uses official PostgreSQL version 16 image
