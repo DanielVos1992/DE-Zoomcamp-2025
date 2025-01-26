@@ -1,16 +1,16 @@
 terraform {
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "6.17.0"
     }
   }
 }
 
 provider "google" {
-    credentials = "./keys/my_creds.json"
-  project     = "datatalks-terraform"
-  region      = "europe-west1-b"
+  credentials = file(var.credentials)
+  project     = var.project
+  region      = var.region
 }
 
 resource "google_storage_bucket" "demo-bucket" {

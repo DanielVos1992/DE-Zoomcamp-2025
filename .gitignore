@@ -45,6 +45,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+keys/
 *.json
 .Python
 data/
