@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_utils import create_database, database_exists
 
-path = "data/yellow_tripdata_2021-01.csv"
+path = "data/yellow_tripdata_2021-01.csv.gz"
 
 def data_ingestor(path):
     """
